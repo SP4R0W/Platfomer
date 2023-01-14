@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://assets/Levels/Level1/platform1.png" type="Texture" id=1]
+
+[sub_resource type="SpriteFrames" id=4]
+animations = [ {
+"frames": [ ExtResource( 1 ) ],
+"loop": true,
+"name": "grass",
+"speed": 5.0
+} ]
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 32, 18.5 )
+
+[node name="Platform" type="StaticBody2D" groups=["platforms"]]
+collision_layer = 4
+
+[node name="Platform" type="AnimatedSprite" parent="."]
+frames = SubResource( 4 )
+animation = "grass"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 0, -12.5 )
+shape = SubResource( 3 )
+one_way_collision = true

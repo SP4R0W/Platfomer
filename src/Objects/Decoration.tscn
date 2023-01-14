@@ -1,0 +1,155 @@
+[gd_scene load_steps=26 format=2]
+
+[ext_resource path="res://assets/Objects/bush.png" type="Texture" id=1]
+[ext_resource path="res://assets/Objects/mushroomRed.png" type="Texture" id=2]
+[ext_resource path="res://assets/Objects/plantPurple.png" type="Texture" id=3]
+[ext_resource path="res://assets/Objects/snow.png" type="Texture" id=4]
+[ext_resource path="res://assets/Objects/mushroomBrown.png" type="Texture" id=5]
+[ext_resource path="res://assets/Objects/grass.png" type="Texture" id=6]
+[ext_resource path="res://assets/Objects/cactus.png" type="Texture" id=7]
+[ext_resource path="res://assets/Objects/rock.png" type="Texture" id=8]
+[ext_resource path="res://assets/Objects/pyramid.png" type="Texture" id=9]
+[ext_resource path="res://assets/Objects/bushOrange4.png" type="Texture" id=10]
+[ext_resource path="res://assets/Objects/cactus2.png" type="Texture" id=11]
+[ext_resource path="res://assets/Objects/bushOrange1.png" type="Texture" id=12]
+[ext_resource path="res://assets/Objects/bushOrange3.png" type="Texture" id=13]
+[ext_resource path="res://assets/Objects/cactus1.png" type="Texture" id=14]
+[ext_resource path="res://assets/Objects/bushOrange2.png" type="Texture" id=15]
+[ext_resource path="res://assets/Objects/cactus3.png" type="Texture" id=16]
+[ext_resource path="res://assets/Objects/treeDead.png" type="Texture" id=17]
+[ext_resource path="res://assets/Objects/treeSmall_greenAlt1.png" type="Texture" id=18]
+[ext_resource path="res://assets/Objects/bush1.png" type="Texture" id=19]
+[ext_resource path="res://assets/Objects/treePine.png" type="Texture" id=20]
+[ext_resource path="res://assets/Objects/treeSmall_greenAlt2.png" type="Texture" id=21]
+[ext_resource path="res://assets/Objects/signRight.png" type="Texture" id=22]
+[ext_resource path="res://assets/Objects/treePineFrozen.png" type="Texture" id=23]
+[ext_resource path="res://assets/Objects/castleSmall.png" type="Texture" id=24]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 1 ) ],
+"loop": true,
+"name": "bush",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 7 ) ],
+"loop": true,
+"name": "cactus",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 14 ) ],
+"loop": true,
+"name": "cactus1",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 11 ) ],
+"loop": true,
+"name": "cactus2",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 16 ) ],
+"loop": true,
+"name": "cactus3",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 24 ) ],
+"loop": true,
+"name": "castle",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 12 ) ],
+"loop": true,
+"name": "desertBush",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 15 ) ],
+"loop": true,
+"name": "desertBush1",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 13 ) ],
+"loop": true,
+"name": "desertBush2",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 10 ) ],
+"loop": true,
+"name": "desertBush3",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 17 ) ],
+"loop": true,
+"name": "desertTree",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ) ],
+"loop": true,
+"name": "grass",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 19 ) ],
+"loop": true,
+"name": "grass1",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 5 ) ],
+"loop": true,
+"name": "mushroomBrown",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "mushroomRed",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 3 ) ],
+"loop": true,
+"name": "purplePlant",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 9 ) ],
+"loop": true,
+"name": "pyramid",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 8 ) ],
+"loop": true,
+"name": "rock",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 22 ) ],
+"loop": true,
+"name": "signRight",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 4 ) ],
+"loop": true,
+"name": "snow",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 23 ) ],
+"loop": true,
+"name": "snowTree",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 20 ) ],
+"loop": true,
+"name": "tree1",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 18 ) ],
+"loop": true,
+"name": "tree2",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 21 ) ],
+"loop": true,
+"name": "tree3",
+"speed": 5.0
+} ]
+
+[node name="Decoration" type="AnimatedSprite"]
+scale = Vector2( 0.5, 0.5 )
+z_index = -10
+frames = SubResource( 1 )
+animation = "castle"

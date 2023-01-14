@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "DUQupXKBQu4/3dfjZNnV2XDsDPyJoDfxfn/mIIbcy7Dx54jsMg/5AI81AXlWIcp7LlpY37DaXTfLZrYh5FG/wA==",
+  "success": true,
+  "projectFilePath": "D:\\Programming\\Godot\\Platfomer\\Platfomer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mateu\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.2\\microsoft.netframework.referenceassemblies.1.0.2.nupkg.sha512",
+    "C:\\Users\\mateu\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net472\\1.0.2\\microsoft.netframework.referenceassemblies.net472.1.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

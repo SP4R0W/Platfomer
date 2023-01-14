@@ -1,0 +1,59 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://assets/Enemies/Spider/spider.png" type="Texture" id=1]
+[ext_resource path="res://assets/Enemies/Spider/spider_walk1.png" type="Texture" id=2]
+[ext_resource path="res://assets/Enemies/Spider/spider_walk2.png" type="Texture" id=3]
+[ext_resource path="res://assets/Enemies/Spider/spider_dead.png" type="Texture" id=4]
+[ext_resource path="res://src/Game/Spider.cs" type="Script" id=5]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 4 ) ],
+"loop": true,
+"name": "dead",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 1 ), ExtResource( 2 ), ExtResource( 3 ) ],
+"loop": true,
+"name": "walk",
+"speed": 5.0
+} ]
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 35.5, 23 )
+
+[node name="Spider" type="Area2D" groups=["enemies"]]
+script = ExtResource( 5 )
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+frames = SubResource( 1 )
+animation = "walk"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( -0.5, 0 )
+shape = SubResource( 2 )
+
+[node name="RayCast1" type="RayCast2D" parent="."]
+position = Vector2( -36, 0 )
+enabled = true
+collision_mask = 6
+
+[node name="RayCast2" type="RayCast2D" parent="."]
+position = Vector2( 35, 0 )
+enabled = true
+collision_mask = 6
+
+[node name="RayCast3" type="RayCast2D" parent="."]
+enabled = true
+cast_to = Vector2( -400, 0 )
+collision_mask = 7
+
+[node name="Tween" type="Tween" parent="."]
+
+[node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
+position = Vector2( -0.999999, -0.500001 )
+scale = Vector2( 3.5, 2.25 )
+
+[connection signal="body_entered" from="." to="." method="Collision"]
+[connection signal="screen_entered" from="VisibilityNotifier2D" to="." method="ScreenEntered"]
+[connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="ScreenLeft"]

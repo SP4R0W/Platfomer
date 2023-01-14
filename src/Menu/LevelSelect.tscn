@@ -1,0 +1,209 @@
+[gd_scene load_steps=18 format=2]
+
+[ext_resource path="res://src/Menu/LevelSelect.cs" type="Script" id=1]
+[ext_resource path="res://assets/Fonts/Watermelon Days.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://assets/Menu/button.png" type="Texture" id=3]
+[ext_resource path="res://assets/Menu/buttonSmall.png" type="Texture" id=4]
+[ext_resource path="res://assets/Levels/Previews/1.png" type="Texture" id=5]
+[ext_resource path="res://assets/Levels/Previews/2.png" type="Texture" id=6]
+[ext_resource path="res://assets/Levels/Previews/4.png" type="Texture" id=7]
+[ext_resource path="res://assets/Levels/Previews/3.png" type="Texture" id=8]
+[ext_resource path="res://assets/Levels/Previews/5.png" type="Texture" id=9]
+[ext_resource path="res://assets/Menu/background.png" type="Texture" id=10]
+
+[sub_resource type="SpriteFrames" id=2]
+animations = [ {
+"frames": [ ExtResource( 5 ) ],
+"loop": true,
+"name": "1",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ) ],
+"loop": true,
+"name": "2",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 8 ) ],
+"loop": true,
+"name": "3",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 7 ) ],
+"loop": true,
+"name": "4",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 9 ) ],
+"loop": true,
+"name": "5",
+"speed": 5.0
+} ]
+
+[sub_resource type="DynamicFont" id=1]
+size = 98
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 49
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 98
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=5]
+size = 98
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=6]
+size = 72
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=7]
+size = 72
+font_data = ExtResource( 2 )
+
+[node name="LevelSelect" type="Node"]
+script = ExtResource( 1 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 10 )
+
+[node name="LevelPreview" type="AnimatedSprite" parent="CanvasLayer"]
+position = Vector2( 960, 540 )
+scale = Vector2( 0.25, 0.25 )
+frames = SubResource( 2 )
+animation = "1"
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -252.0
+margin_top = -430.0
+margin_right = 252.0
+margin_bottom = -319.0
+custom_fonts/font = SubResource( 1 )
+text = "Select a level:"
+
+[node name="LevelText" type="Label" parent="CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -60.5
+margin_top = -240.0
+margin_right = 60.5
+margin_bottom = -184.0
+custom_fonts/font = SubResource( 3 )
+text = "Level: 1"
+
+[node name="PlayButton" type="TextureButton" parent="CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -125.0
+margin_top = 230.0
+margin_right = 387.0
+margin_bottom = 370.0
+rect_scale = Vector2( 0.5, 0.5 )
+texture_normal = ExtResource( 3 )
+
+[node name="Label" type="Label" parent="CanvasLayer/PlayButton"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -174.0
+margin_top = -55.5
+margin_right = 174.0
+margin_bottom = 55.5
+custom_fonts/font = SubResource( 4 )
+text = "PLAY LEVEL"
+
+[node name="BackButton" type="TextureButton" parent="CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -125.0
+margin_top = 350.0
+margin_right = 387.0
+margin_bottom = 490.0
+rect_scale = Vector2( 0.5, 0.5 )
+texture_normal = ExtResource( 3 )
+
+[node name="Label" type="Label" parent="CanvasLayer/BackButton"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -74.0
+margin_top = -55.5
+margin_right = 74.0
+margin_bottom = 55.5
+custom_fonts/font = SubResource( 5 )
+text = "BACK"
+
+[node name="NextButton" type="TextureButton" parent="CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 540.0
+margin_top = -30.0
+margin_right = 668.0
+margin_bottom = 110.0
+rect_scale = Vector2( 0.5, 0.5 )
+texture_normal = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="CanvasLayer/NextButton"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -54.0
+margin_top = -41.0
+margin_right = 54.0
+margin_bottom = 41.0
+custom_fonts/font = SubResource( 6 )
+text = "NEXT"
+
+[node name="PrevButton" type="TextureButton" parent="CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -560.0
+margin_top = -30.0
+margin_right = -432.0
+margin_bottom = 110.0
+rect_scale = Vector2( 0.5, 0.5 )
+texture_normal = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="CanvasLayer/PrevButton"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -52.0
+margin_top = -41.0
+margin_right = 52.0
+margin_bottom = 41.0
+custom_fonts/font = SubResource( 7 )
+text = "Prev"
+
+[node name="Tween" type="Tween" parent="."]
+
+[node name="Tween2" type="Tween" parent="."]
+
+[connection signal="pressed" from="CanvasLayer/PlayButton" to="." method="GotoGame"]
+[connection signal="pressed" from="CanvasLayer/BackButton" to="." method="GotoMenu"]
+[connection signal="pressed" from="CanvasLayer/NextButton" to="." method="NextLevel"]
+[connection signal="pressed" from="CanvasLayer/PrevButton" to="." method="PrevLevel"]

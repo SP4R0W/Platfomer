@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/level4Aggressive.mp3-34abe8a4c21c8ad580b0234e8c19fba7.mp3str"
+
+[deps]
+
+source_file="res://assets/Levels/level4Aggressive.mp3"
+dest_files=[ "res://.import/level4Aggressive.mp3-34abe8a4c21c8ad580b0234e8c19fba7.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
