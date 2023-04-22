@@ -1,5 +1,5 @@
-/.import
-/.vscode
-/mono
+**/.import
+**/.vscode
+**/mono
 *.import
 export_presets.cfg
