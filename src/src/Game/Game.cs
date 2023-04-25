@@ -9,26 +9,23 @@ public class Game : Node
 	[Signal]
 	public delegate void EndGame();
 
-	private bool isCountDone = false;
+	bool isCountDone = false;
 
-	private int totalScore = 0;
+	int totalScore = 0;
 
 	public override void _Ready()
 	{
     	var music = GetTree().Root.GetNode<AudioStreamPlayer>("Area/MenuTheme");
         if (music.Playing)
-        {
             music.Stop();
-        }
 
 		if (Global.isSpeedrunOn)
-		{
-			UpdateSpeedrun();
-		}
+			UpdateSpeedrun(); // Set up the speedrun UI
 
 		Global.isReset = false;
 		Global.isEndGame = false;
 
+		// Reset all the values
 		if (!Global.isNewGame)
 		{
 			Global.prevTotalKills = 0;
@@ -57,13 +54,12 @@ public class Game : Node
 		timer.Start();
 
         if (Global.isMusicOn)
-        {
 			Global.PlayMusic(GetTree().Root.GetNode("Area"),Global.level);
-        }
 	}
 
-	private void UpdateSpeedrun()
+	void UpdateSpeedrun()
 	{
+		// Get the time at start in miliseconds
 		Global.startTime = OS.GetSystemTimeMsecs();
 
 		var ui = GetNode<CanvasLayer>("SpeedrunUI");
@@ -94,26 +90,26 @@ public class Game : Node
 		}
 	}
 
-	private void LoadLevel(string level)
+	void LoadLevel(string level)
 	{
 		string levelName = "res://src/Levels/Level" + level + ".tscn";
-		PackedScene levelScenePath = (PackedScene)ResourceLoader.Load(levelName);
+		PackedScene levelScenePath = (PackedScene)ResourceLoader.Load(levelName); // Load the scene with level
 		var levelScene = levelScenePath.Instance();
 		AddChild(levelScene);
 	}
 
-	private void UpdateCount()
+	void UpdateCount()
 	{
 		var sound = GetNode<AudioStreamPlayer>("KillSound");
+
         if (Global.isSfxOn)
-        {
             sound.Play();
-        }
+
 		Global.totalScore += 100;
 		Global.totalKills++;
 	}
 
-	private void LevelEnd()
+	void LevelEnd()
 	{
 		Global.StopMusic(GetTree().Root.GetNode("Area"),Global.level);
 
@@ -121,33 +117,26 @@ public class Game : Node
         timer.Stop();
 
 		if (Global.isSfxOn)
-		{
 			GetTree().CreateTimer(3).Connect("timeout",this,"ContinueLevelEnd");
-		}
 		else
-		{
-			ContinueLevelEnd();
-		}
+			ContinueLevelEnd(); // Skip the waiting for sound if we have them disabled
 	}
 
-	private void ContinueLevelEnd()
+	void ContinueLevelEnd()
 	{
+		// This is triggered when all the counters at the end of the level are finished
 		isCountDone = false;
 
 		var sound = GetNode<AudioStreamPlayer>("Counter");
 		if (Global.isSfxOn)
-		{
 			sound.Play();
-		}
 
 		totalScore = 0;
 
 		totalScore += 500 * Global.plrHealth;
         totalScore += 1000 * Global.level;
-		if (Global.level == 5)
-		{
-			totalScore += 10000;
-		}
+		if (Global.level == 5 && Global.isNewGame)
+			totalScore += 10000; // Bonus for completing the game
 
 		GetTree().CreateTimer(0.01f).Connect("timeout",this,"IncreaseTotalScore");
 
@@ -156,7 +145,7 @@ public class Game : Node
 		GetTree().CreateTimer(0.01f).Connect("timeout",this,"IncreaseTimeScore");
 	}
 
-	private void IncreaseTotalScore()
+	void IncreaseTotalScore()
 	{
 		if (totalScore > 0)
 		{
@@ -180,8 +169,9 @@ public class Game : Node
 		}
 	}
 
-	private void IncreaseCoinScore()
+	void IncreaseCoinScore()
 	{
+		// Bonus points for each coin collected
 		if (Global.coins > 0)
 		{
 			Global.coins--;
@@ -204,8 +194,9 @@ public class Game : Node
 		}
 	}
 
-	private void IncreaseTimeScore()
+	void IncreaseTimeScore()
 	{
+		// Give extra score for the remaining time.
 		if (Global.time > 0)
 		{
 			Global.time--;
@@ -228,13 +219,13 @@ public class Game : Node
 		}
 	}
 
-	private void IncreaseTime()
+	void IncreaseTime()
 	{
 		Global.time--;
 		Global.totalTime++;
 		if (Global.time < 1)
 		{
-			EmitSignal("Timeout");
+			EmitSignal("Timeout"); // End the game if the timer runs out
 			var timer = GetNode<Timer>("Timer");
 			timer.Stop();
 		}
@@ -242,6 +233,7 @@ public class Game : Node
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
+		// Quit the game action
 		if (@event.IsActionPressed("quit") && !Global.isReset && !Global.isChangingLevel && !Global.isEndGame && !Global.isHurt)
 		{
 			Global.StopMusic(GetTree().Root.GetNode("Area"),Global.level);
@@ -249,6 +241,7 @@ public class Game : Node
 			Global.composer.GotoScene(Global.scenes["mainmenu"],true,"fade");
 		}
 
+		// Reset the level
 		if (@event.IsActionPressed("restart") && !Global.isEndGame && !Global.isReset && !Global.isChangingLevel && !Global.isHurt)
 		{
 			Global.isReset = true;
@@ -260,21 +253,21 @@ public class Game : Node
 			Global.totalScore = Global.prevTotalScore;
 			Global.totalKills = Global.prevTotalKills;
 			Global.totalTime = Global.prevTotalTime;
-    
+
 			Global.totalDeaths++;
 			Global.composer.GotoScene(Global.scenes["game"],true,"fade");
 
 			Global.isReset = false;
 		}
 
+
 		if (@event.IsActionPressed("switchlevel") && isCountDone && Global.isEndGame && !Global.isReset && !Global.isChangingLevel && !Global.isHurt)
-		{	
+		{
 			Global.isChangingLevel = true;
 
+			// If we didn't start from the beggining then go to end screen
 			if (!Global.isNewGame)
-			{
 				Global.composer.GotoScene(Global.scenes["endgame"],true,"fade");
-			}
 			else
 			{
 				Global.level++;
@@ -282,62 +275,53 @@ public class Game : Node
 				Global.prevTotalKills = Global.totalKills;
 				Global.prevTotalTime = Global.totalTime;
 
+				// Switch to a new level or to end screen if its the last level
 				if (Global.level == 6)
-				{
 					Global.composer.GotoScene(Global.scenes["endgame"],true,"fade");
-				}
 				else
-				{
 					Global.composer.GotoScene(Global.scenes["game"],true,"fade");
-				}
 			}
 		}
 	}
 
     public override void _Process(float delta)
     {
+		// Update the speedrun UI if speedrun mode is on
 		if (!Global.isEndGame && !Global.isDead && Global.isSpeedrunOn)
 		{
-			double time = OS.GetSystemTimeMsecs();
+			double time = OS.GetSystemTimeMsecs(); // Get the current time
 
-			double diff = (time - Global.startTime) / 1000;
+			double diff = (time - Global.startTime) / 1000; // Calculate the difference
 
-			if (Global.level == 1)
+			// Set the time value to the right variable (the current level)
+			switch (Global.level)
 			{
-				Global.level1SpeedTime = diff;
-			}
-			else if (Global.level == 2)
-			{
-				Global.level2SpeedTime = diff;
-			}
-			else if (Global.level == 3)
-			{
-				Global.level3SpeedTime = diff;
-			}
-			else if (Global.level == 4)
-			{
-				Global.level4SpeedTime = diff;
-			}
-			else if (Global.level == 5)
-			{
-				Global.level5SpeedTime = diff;
+				case 1:
+					Global.level1SpeedTime = diff;
+					break;
+				case 2:
+					Global.level2SpeedTime = diff;
+					break;
+				case 3:
+					Global.level3SpeedTime = diff;
+					break;
+				case 4:
+					Global.level4SpeedTime = diff;
+					break;
+				case 5:
+					Global.level5SpeedTime = diff;
+					break;
 			}
 
+			// Update the text
 			Global.totalSpeedTime = Global.level1SpeedTime + Global.level2SpeedTime + Global.level3SpeedTime + Global.level4SpeedTime + Global.level5SpeedTime;
 
-			Label level1Text = GetNode<Label>("SpeedrunUI/VFlowContainer/Level1Text");
-			Label level2Text = GetNode<Label>("SpeedrunUI/VFlowContainer/Level2Text");
-			Label level3Text = GetNode<Label>("SpeedrunUI/VFlowContainer/Level3Text");
-			Label level4Text = GetNode<Label>("SpeedrunUI/VFlowContainer/Level4Text");
-			Label level5Text = GetNode<Label>("SpeedrunUI/VFlowContainer/Level5Text");
-			Label totalText = GetNode<Label>("SpeedrunUI/VFlowContainer/TotalText");
-
-			level1Text.Text = "Level 1: " + Global.level1SpeedTime;
-			level2Text.Text = "Level 2: " + Global.level2SpeedTime;
-			level3Text.Text = "Level 3: " + Global.level3SpeedTime;
-			level4Text.Text = "Level 4: " + Global.level4SpeedTime;
-			level5Text.Text = "Level 5: " + Global.level5SpeedTime;
-			totalText.Text = "Total: " + Global.totalSpeedTime;
+			GetNode<Label>("SpeedrunUI/VFlowContainer/Level1Text").Text = "Level 1: " + Global.level1SpeedTime;
+			GetNode<Label>("SpeedrunUI/VFlowContainer/Level2Text").Text = "Level 2: " + Global.level2SpeedTime;
+			GetNode<Label>("SpeedrunUI/VFlowContainer/Level3Text").Text = "Level 3: " + Global.level3SpeedTime;
+			GetNode<Label>("SpeedrunUI/VFlowContainer/Level4Text").Text = "Level 4: " + Global.level4SpeedTime;
+			GetNode<Label>("SpeedrunUI/VFlowContainer/Level5Text").Text = "Level 5: " + Global.level5SpeedTime;
+			GetNode<Label>("SpeedrunUI/VFlowContainer/TotalText").Text = "Total: " + Global.totalSpeedTime;
 		}
     }
 }

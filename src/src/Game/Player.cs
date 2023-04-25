@@ -13,44 +13,44 @@ public class Player : KinematicBody2D
     [Signal]
     public delegate void Killed();
 
-    private float _maxSpeed = 400;
-    private float _initialSpeed = 300;
-    
-    private float gravity;
-    private float maxJumpVel;
-    private float minJumpVel;
+    float _maxSpeed = 400;
+    float _initialSpeed = 300;
 
-    private float maxJumpHeight = 3.25f * 64;
-    private float minJumpHeight = 1.2f * 64;
-    private float jumpDuration = 0.5f;
+    float gravity;
+    float maxJumpVel;
+    float minJumpVel;
 
-    private float currentSpeed = 0;
-    private float speedIncrement = 500;
+    float maxJumpHeight = 3.25f * 64;
+    float minJumpHeight = 1.2f * 64;
+    float jumpDuration = 0.5f;
 
-    private float direction = 1;
+    float currentSpeed = 0;
+    float speedIncrement = 500;
 
-    private int hurtPhaseCount = 0;
+    float direction = 1;
 
-    private bool isDead = false;
-    private bool isGrounded = false;
+    int hurtPhaseCount = 0;
 
-    private bool canMove = true;
+    bool isDead = false;
+    bool isGrounded = false;
 
-    private string state = "stand";
+    bool canMove = true;
 
-    private Vector2 velocity = new Vector2(0,0);
+    string state = "stand";
 
-    private AnimatedSprite animSprite;
-    private RayCast2D ray;
-    private RayCast2D ray2;
+    Vector2 velocity = new Vector2(0,0);
 
-    private CollisionShape2D collisionShape;
-    private Tween tween;
+    AnimatedSprite animSprite;
+    RayCast2D ray;
+    RayCast2D ray2;
 
-    private Panel endPanel;
-    private Label restartLabel;
+    CollisionShape2D collisionShape;
+    Tween tween;
 
-    private Timer jumpBuffer;
+    Panel endPanel;
+    Label restartLabel;
+
+    Timer jumpBuffer;
 
     public override void _Ready()
     {
@@ -94,88 +94,77 @@ public class Player : KinematicBody2D
         levelEnd.Connect("EndGameBG",this,"LevelEndBG");
     }
 
-    private void GetHurt()
+    void GetHurt()
     {
         if (!Global.isHurt)
         {
             Global.isHurt = true;
             var sound = GetNode<AudioStreamPlayer>("HurtSound");
             if (Global.isSfxOn)
-            {
                 sound.Play();
-            }
 
             var sound1 = GetNode<AudioStreamPlayer>("JumpShort");
             if (Global.isSfxOn && !sound1.Playing)
-            {
                 sound1.Play();
-            }
-            velocity.y = minJumpVel;
+
+            velocity.y = minJumpVel; // A small jump whenever the player gets hurt
+
             if (Global.plrHealth > 0)
-            {
                 Global.plrHealth--;
-            }
+
             if (Global.plrHealth < 1)
-            {
-                Kill();
-            }
+                Kill(); // Game over, we lost our health
             else
-            {
-                GetTree().CreateTimer(0.1f).Connect("timeout",this,"PlayerBeep");
-            }
+                GetTree().CreateTimer(0.1f).Connect("timeout",this,"PlayerBeep"); // Flash when player took a hit
         }
     }
 
-    private void PlayerBeep()
+    void PlayerBeep()
     {
         Visible = !Visible;
         hurtPhaseCount++;
         if (hurtPhaseCount < 7)
-        {
             GetTree().CreateTimer(0.1f).Connect("timeout",this,"PlayerBeep");
-        }
         else
-        {
             Visible = true;
             Global.isHurt = false;
-        }
     }
 
-    private void Beep()
+    void Beep()
     {
         restartLabel.Visible = !restartLabel.Visible;
     }
 
-    private void BeepEnd()
+    void BeepEnd()
     {
         endPanel.Visible = !endPanel.Visible;
     }
 
-    private void LevelEndBG()
+    void LevelEndBG()
     {
         canMove = false;
     }
 
-    private void LevelEnd()
+    void LevelEnd()
     {
+        // Show the panel for the level end
         endPanel.Visible = true;
         var timer = endPanel.GetNode<Timer>("Timer");
         timer.Start();
     }
 
-    private void Kill()
+    void Kill()
     {
         Global.isDead = true;
-        EmitSignal("Killed");
+        EmitSignal("Killed"); // Emit the signal
 
         var gameTimer = GetParent().GetParent().GetNode<Timer>("Timer");
         gameTimer.Stop();
-        
+
+        // Play the death sound
         var sound = GetNode<AudioStreamPlayer>("DeathSound");
         if (Global.isSfxOn)
-        {
             sound.Play();
-        }
 
         Global.totalDeaths++;
         canMove = false;
@@ -193,8 +182,8 @@ public class Player : KinematicBody2D
 		GetTree().CreateTimer(1.25f).Connect("timeout",this,"ShowReset");
     }
 
-    private void ShowReset()
-    {        
+    void ShowReset()
+    {
         restartLabel.Visible = true;
         var timer = restartLabel.GetNode<Timer>("Timer");
         timer.Start();
@@ -202,25 +191,22 @@ public class Player : KinematicBody2D
 
     public override void _Process(float delta)
     {
+        // Don't allow the player
         if (Global.isChangingLevel)
-        {
             canMove = false;
-        }
         else
         {
             if (!Global.isEndGame)
-            {
                 canMove = true;
-            }
         }
 
         velocity.x = 0;
 
+        // Kill the player if he falls into a pit
         if (Position.y > 1080 && !isDead)
-        {
             Kill();
-        }
 
+        // Jump buffer
         if (Input.IsActionPressed("jump"))
             jumpBuffer.Start();
 
@@ -234,19 +220,16 @@ public class Player : KinematicBody2D
             jumpBuffer.Stop();
         }
 
+        // Movement code
         if (Input.IsActionPressed("walk_left") && canMove)
         {
             animSprite.FlipH = true;
             direction = -1;
 
             if (currentSpeed < 1)
-            {
                 currentSpeed = _initialSpeed;
-            }
             if (currentSpeed < _maxSpeed)
-            {
                 currentSpeed += speedIncrement * delta;
-            }
         }
 
          if (Input.IsActionPressed("walk_right") && canMove)
@@ -255,16 +238,13 @@ public class Player : KinematicBody2D
             direction = 1;
 
             if (currentSpeed < 1)
-            {
                 currentSpeed = _initialSpeed;
-            }
-             
+
             if (currentSpeed < _maxSpeed)
-            {
                 currentSpeed += speedIncrement * delta;
-            }
         }
-        
+
+        // Emit particles if immune
         var particles = GetNode<CPUParticles2D>("ImmunityParticles");
         if (Global.isImmune)
         {
@@ -272,17 +252,14 @@ public class Player : KinematicBody2D
             currentSpeed = _maxSpeed * 1.25f;
         }
         else
-        {
             particles.Emitting = false;
-        }
 
         if (isDead)
-        {
             currentSpeed = 0;
-        }
 
         velocity.x = (currentSpeed * direction);
 
+        // Stop the player if there's no input
         if (!Input.IsActionPressed("walk_right") && !Input.IsActionPressed("walk_left"))
         {
             currentSpeed = 0;
@@ -298,6 +275,7 @@ public class Player : KinematicBody2D
             velocity.y = minJumpVel;
         }
 
+        // Code responsible for "states", which are just animations for the player.
         if (IsOnFloor() && state == "fall")
         {
             var sound = GetNode<AudioStreamPlayer>("LandSound");
@@ -338,33 +316,31 @@ public class Player : KinematicBody2D
             isGrounded = IsOnFloor();
 
             if (isGrounded != wasGrounded)
-            {
                 EmitSignal("GroundedUpdated",isGrounded);
-            }
-            
+
             Vector2 point = ray2.GetCollisionPoint();
             Global.playerPos = new Vector2(GlobalPosition.x,point.y);
         }
     }
 
-    private void BarnacleHit(Barnacle enemy, AnimatedSprite animSprite)
+    void BarnacleHit(Barnacle enemy, AnimatedSprite animSprite)
     {
         if (!Global.isImmune)
         {
             if (velocity.y == 0)
             {
-                enemy.Attack();
-                GetHurt();     
+                enemy.Attack(); // Play the enemy's attack animation
+                GetHurt();
             }
             else
             {
+                // Barnacle can only be dead if its mouth is closed.
                 if (animSprite.Animation == "closed" && !Global.isHurt)
                 {
                     var sound = GetNode<AudioStreamPlayer>("JumpLong");
                     if (Global.isSfxOn && !sound.Playing)
-                    {
                         sound.Play();
-                    }
+
                     velocity.y = maxJumpVel;
                     enemy.Kill();
                     EmitSignal("EnemyKilled");
@@ -372,68 +348,63 @@ public class Player : KinematicBody2D
                 else
                 {
                     enemy.Attack();
-                    GetHurt();                 
+                    GetHurt();
                 }
             }
         }
         else
         {
+            // Kill the enemy if player has immunity
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void PiranhaHit(Piranha enemy, AnimatedSprite animSprite)
+    void PiranhaHit(Piranha enemy, AnimatedSprite animSprite)
     {
         if (!Global.isImmune)
         {
             if (velocity.y == 0)
-            {
-                GetHurt();     
-            }
+                GetHurt();
             else
             {
+                // You can only kill the piranha if you jump on its head
                 if (animSprite.Animation == "jump" && enemy.GlobalPosition.y >= GlobalPosition.y && !Global.isHurt)
                 {
                     var sound = GetNode<AudioStreamPlayer>("JumpLong");
                     if (Global.isSfxOn && !sound.Playing)
-                    {
                         sound.Play();
-                    }
+
                     velocity.y = maxJumpVel;
                     enemy.Kill();
                     EmitSignal("EnemyKilled");
                 }
                 else
-                {
-                    GetHurt();                 
-                }
+                    GetHurt();
             }
         }
         else
         {
+            // Kill the enemy if player has immunity
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void SlimeHit(Slime enemy)
+    void SlimeHit(Slime enemy)
     {
         if (!Global.isImmune)
         {
             if (velocity.y == 0)
-            {
-                GetHurt();      
-            }
+                GetHurt();
             else
             {
                 if (!Global.isHurt)
                 {
                     var sound = GetNode<AudioStreamPlayer>("JumpLong");
                     if (Global.isSfxOn && !sound.Playing)
-                    {
                         sound.Play();
-                    }
+
                     velocity.y = maxJumpVel;
                     enemy.Kill();
                     EmitSignal("EnemyKilled");
@@ -442,47 +413,43 @@ public class Player : KinematicBody2D
         }
         else
         {
+            // Kill the enemy if player has immunity
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void GhostHit(Ghost enemy)
+    void GhostHit(Ghost enemy)
     {
         if (!Global.isImmune)
-        {
-            GetHurt();
-        }
+            GetHurt(); // Ghost cannot be killed without immunity.
         else
         {
+            // Kill the enemy if player has immunity
             var sound = GetNode<AudioStreamPlayer>("JumpLong");
             if (Global.isSfxOn && !sound.Playing)
-            {
                 sound.Play();
-            }
+
             velocity.y = maxJumpVel;
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void SpiderHit(Spider enemy)
+    void SpiderHit(Spider enemy)
     {
         if (!Global.isImmune)
         {
             if (velocity.y == 0)
-            {
-                GetHurt();      
-            }
+                GetHurt();
             else
             {
                 if (!Global.isHurt)
                 {
                     var sound = GetNode<AudioStreamPlayer>("JumpLong");
                     if (Global.isSfxOn && !sound.Playing)
-                    {
                         sound.Play();
-                    }
+
                     velocity.y = maxJumpVel;
                     enemy.Kill();
                     EmitSignal("EnemyKilled");
@@ -491,28 +458,27 @@ public class Player : KinematicBody2D
         }
         else
         {
+            // Kill the enemy if player has immunity
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void BeeHit(Bee enemy)
+    void BeeHit(Bee enemy)
     {
         if (!Global.isImmune)
         {
             if (velocity.y == 0)
-            {
-                GetHurt();      
-            }
+                GetHurt();
             else
             {
+                // Check if the player jumped on bee's head
                 if (enemy.GlobalPosition.y >= GlobalPosition.y && !Global.isHurt)
                 {
                     var sound = GetNode<AudioStreamPlayer>("JumpLong");
                     if (Global.isSfxOn && !sound.Playing)
-                    {
                         sound.Play();
-                    }
+
                     velocity.y = maxJumpVel;
                     enemy.Kill();
                     EmitSignal("EnemyKilled");
@@ -523,28 +489,27 @@ public class Player : KinematicBody2D
         }
         else
         {
+            // Kill the enemy if player has immunity
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void BatHit(Bat enemy)
+    void BatHit(Bat enemy)
     {
         if (!Global.isImmune)
         {
             if (velocity.y == 0)
-            {
-                GetHurt();      
-            }
+                GetHurt();
             else
             {
+                // Check if the player jumped on bat's head
                 if (enemy.GlobalPosition.y >= GlobalPosition.y && !Global.isHurt)
                 {
                     var sound = GetNode<AudioStreamPlayer>("JumpLong");
                     if (Global.isSfxOn && !sound.Playing)
-                    {
                         sound.Play();
-                    }
+
                     velocity.y = maxJumpVel;
                     enemy.Kill();
                     EmitSignal("EnemyKilled");
@@ -555,24 +520,23 @@ public class Player : KinematicBody2D
         }
         else
         {
+            // Kill the enemy if player has immunity
             enemy.Kill();
             EmitSignal("EnemyKilled");
         }
     }
 
-    private void SpinnerHit(Spinner enemy)
+    void SpinnerHit(Spinner enemy)
     {
         if (!Global.isImmune)
-        {
-            GetHurt();
-        }
+            GetHurt(); // Spinner cannot be killed without immunity
         else
         {
+            // Kill the enemy if player has immunity
             var sound = GetNode<AudioStreamPlayer>("JumpLong");
             if (Global.isSfxOn && !sound.Playing)
-            {
                 sound.Play();
-            }
+
             velocity.y = maxJumpVel;
             enemy.Kill();
             EmitSignal("EnemyKilled");
