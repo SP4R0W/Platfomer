@@ -10,7 +10,7 @@ Please note that some may find this game challenging and indeed, it never was me
 #### WARNING !
 Please note that this was my first true game in C# and in no way this code will ever be perfect. I didn't know about many things at the time that I should have used (like enums for states, scene inheritance, etc.) <br>
 I did some small clean up and added comments but I haven't made any significant changes to the code. <br>
-I upload this repo and preserve the game for me to look at how much I improve over time. Improving the code now, with my current knowledge defeats the point. <br>
+I uploaded this repo and preserved the game for me to look at how much I improve over time. Improving the code now, with my current knowledge defeats the point. <br>
 However, you're free to improve upon this code if you wish to do so :)
 
 ### Getting Started
