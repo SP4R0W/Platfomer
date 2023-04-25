@@ -5,12 +5,13 @@ using Godot.Collections;
 
 public class ZigZag : Node2D
 {
+    // This is a C# rewrite of the ZigZag animation made by Nemesis-AS in his repo godot-transitions
 
     public int stripes = 3;
     public Color color = new Color(0,0,0);
 
-    private int width = Global.composer.screen["width"];
-    private List<Vector2> points = new List<Vector2>();
+    int width = Global.composer.screen["width"];
+    List<Vector2> points = new List<Vector2>();
 
     public override void _Ready()
     {
@@ -25,13 +26,9 @@ public class ZigZag : Node2D
         {
             y += 32;
             if (x <= width)
-            {
                 x += 32;
-            }
             else
-            {
                 x -= 32;
-            }
 
             points.Add(new Vector2(x,y));
             tempArray.Add(new Vector2(x - (width + 64), y));
@@ -50,6 +47,6 @@ public class ZigZag : Node2D
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.
 //  public override void _Process(float delta)
 //  {
-//      
+//
 //  }
 }

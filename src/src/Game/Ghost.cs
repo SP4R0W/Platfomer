@@ -6,26 +6,26 @@ public class Ghost : Area2D
 	[Signal]
 	public delegate void Hit(Ghost area);
 
-    private Timer timer;
-	private Tween tween;
-	private AnimatedSprite animSprite;
-	private CollisionShape2D collisionShape;
-	private RayCast2D ray1;
-	private RayCast2D ray2;
-    private RayCast2D playerRay;
+    Timer timer;
+	Tween tween;
+	AnimatedSprite animSprite;
+	CollisionShape2D collisionShape;
+	RayCast2D ray1;
+	RayCast2D ray2;
+    RayCast2D playerRay;
 
-    private VisibilityNotifier2D vis;
+    VisibilityNotifier2D vis;
 
-	private int direction = -1;
+	int direction = -1;
 
-	private int speed;
+	int speed;
 
-    private int normalSpeed = 75;
-    private int chaseSpeed = 300;
+    int normalSpeed = 75;
+    int chaseSpeed = 300;
 
-    private int ySpeed = 5;
+    int ySpeed = 5;
 
-	private Vector2 velocity = Vector2.Zero;
+	Vector2 velocity = Vector2.Zero;
 
     public override void _Ready()
     {
@@ -38,26 +38,22 @@ public class Ghost : Area2D
         animSprite = GetNode<AnimatedSprite>("AnimatedSprite");
         collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
         tween = GetNode<Tween>("Tween");
-        timer = GetNode<Timer>("MoveTimer");      
+        timer = GetNode<Timer>("MoveTimer");
 
         speed = normalSpeed;
 
         if (vis.IsOnScreen())
         {
-            timer.Start();
+            timer.Start(); // This timer is responsible for y axis movement
             if (Global.isAnimOn)
-            {
                 animSprite.Play();
-            }
         }
     }
 
-	private void Collision(Node body)
+	void Collision(Node body)
 	{
 		if (body.Name == "Player")
-		{
-            EmitSignal("Hit",this);
-		}
+            EmitSignal("Hit",this); // Emit the hit signal if touched player (from the sides)
 		else
 		{
 			if (direction == 1)
@@ -77,31 +73,34 @@ public class Ghost : Area2D
 
     public void Kill()
     {
+        // Ghost can only die if we have immunity on
+
         collisionShape.SetDeferred("disabled",true);
         playerRay.Enabled = false;
         timer.Stop();
         speed = 0;
 		animSprite.Animation = "dead";
-        Rotation = Mathf.Deg2Rad(180);
+        Rotation = Mathf.Deg2Rad(180); // Turn the ghost upside down
 
 		tween.InterpolateProperty(this,"position:y",Position.y,Position.y+1000,2,Tween.TransitionType.Linear,Tween.EaseType.In);
-		tween.Start();
+		tween.Start(); // Move down then remove
 
         GetTree().CreateTimer(2.25f).Connect("timeout",this,"Remove");
     }
 
-    private void Remove()
+    void Remove()
     {
         QueueFree();
     }
 
-    private void ChangeY()
+    void ChangeY()
     {
         ySpeed *= -1;
     }
 
 	public override void _PhysicsProcess(float delta)
 	{
+         // If found no ground on one side then change direction
 		if (!ray1.IsColliding())
 		{
 			direction = 1;
@@ -116,14 +115,12 @@ public class Ghost : Area2D
             animSprite.FlipH = false;
 		}
 
-        if (!ray1.IsColliding() && !ray2.IsColliding())
-        {
+        if (!ray1.IsColliding() && !ray2.IsColliding()) // If found no ground then kill (prevents flying ghosts)
             Kill();
-        }
 
         if (playerRay.IsColliding())
         {
-            var collider = playerRay.GetCollider();
+            var collider = playerRay.GetCollider(); // If spotted player then move faster and change appearance
             if (((Node)collider).Name == "Player")
             {
                 speed = chaseSpeed;
@@ -141,31 +138,26 @@ public class Ghost : Area2D
             animSprite.Animation = "normal";
         }
 
+        // Move the ghost
 		velocity.x = speed * direction;
         if (vis.IsOnScreen())
-        {
             velocity.y = ySpeed;
-        }
 
 		GlobalPosition += velocity * delta;
 	}
 
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
-        timer.Start();
+        timer.Start(); // Start the timer for y movement
         if (Global.isAnimOn)
-        {
             animSprite.Play();
-        }
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
-        timer.Stop();
+        timer.Stop(); // Stop the timer for y movement
         if (Global.isAnimOn)
-        {
             animSprite.Stop();
-        }
     }
 }

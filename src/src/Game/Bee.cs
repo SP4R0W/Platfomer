@@ -6,28 +6,28 @@ public class Bee : Area2D
 	[Signal]
 	public delegate void Hit(Bee area);
 
-    private Timer timer;
-	private Tween tween;
-	private AnimatedSprite animSprite;
-	private CollisionShape2D collisionShape;
-    private RayCast2D playerRay;
+    Timer timer;
+	Tween tween;
+	AnimatedSprite animSprite;
+	CollisionShape2D collisionShape;
+    RayCast2D playerRay;
 
-    private VisibilityNotifier2D vis;
+    VisibilityNotifier2D vis;
 
-	private int direction = -1;
+	int direction = -1;
 
-	private int speed;
+	int speed;
 
-    private int normalSpeed = 100;
+    int normalSpeed = 100;
 
-    private bool isChasing = false;
+    bool isChasing = false;
 
-    private int ySpeed = 10;
+    int ySpeed = 10;
 
-	private Vector2 velocity = Vector2.Zero;
-    private Vector2 initialPos;
+	Vector2 velocity = Vector2.Zero;
+    Vector2 initialPos;
 
-    private bool isDead = false;
+    bool isDead = false;
 
     public override void _Ready()
     {
@@ -37,31 +37,28 @@ public class Bee : Area2D
         animSprite = GetNode<AnimatedSprite>("AnimatedSprite");
         collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
         tween = GetNode<Tween>("Tween");
-        timer = GetNode<Timer>("MoveTimer");    
+        timer = GetNode<Timer>("MoveTimer");
 
         animSprite.Animation = "fly";
 
         if (vis.IsOnScreen())
         {
             if (Global.isAnimOn)
-            {
                 animSprite.Play();
-            }
-            timer.Start();
+
+            timer.Start(); // This timer is responsible for y axis movement
         }
 
         speed = normalSpeed;
     }
 
-	private void Collision(Node body)
+	void Collision(Node body)
 	{
 		if (body.Name == "Player")
-		{
-            EmitSignal("Hit",this);
-		}
+            EmitSignal("Hit",this); // Emit the hit signal if touched player (from the sides or when teeth are open)
 		else
 		{
-			if (direction == 1)
+			if (direction == 1) // Change direction if touched a wall
 			{
 				direction = -1;
                 playerRay.Rotation = Mathf.Deg2Rad(225);
@@ -90,23 +87,23 @@ public class Bee : Area2D
         Rotation = Mathf.Deg2Rad(180);
 
 		tween.InterpolateProperty(this,"position:y",Position.y,Position.y+2000,2,Tween.TransitionType.Linear,Tween.EaseType.In);
-		tween.Start();
+		tween.Start(); // Move way down and remove
 
         GetTree().CreateTimer(2.25f).Connect("timeout",this,"Remove");
     }
 
-    private void Remove()
+    void Remove()
     {
         QueueFree();
     }
 
-    private void ChangeY()
+    void ChangeY()
     {
         ySpeed *= -1;
     }
 
-    private void ChasePlayer()
-    {   
+    void ChasePlayer()
+    {
         if (!isDead)
         {
             timer.Paused = true;
@@ -117,29 +114,27 @@ public class Bee : Area2D
             var time = Mathf.Clamp((desired.y - initialPos.y)/2000,0.5f,1);
 
             tween.InterpolateProperty(this,"global_position",GlobalPosition,desired,time,Tween.TransitionType.Linear,Tween.EaseType.InOut);
-            tween.Start();
+            tween.Start(); // Chase the player to the position it has been spotted at
 
             GetTree().CreateTimer(1.2f).Connect("timeout",this,"GoBack");
         }
     }
 
-    private void GoBack()
+    void GoBack()
     {
         if (!isDead)
         {
             var time = Mathf.Clamp((GlobalPosition.y - initialPos.y)/2000,0.5f,1);
             tween.InterpolateProperty(this,"global_position",GlobalPosition,initialPos,time,Tween.TransitionType.Linear,Tween.EaseType.InOut);
-            tween.Start();
+            tween.Start(); // Move bee back to previous position
 
             GetTree().CreateTimer(1.2f).Connect("timeout",this,"StopChase");
         }
         else
-        {
             isChasing = false;
-        }
     }
 
-    private void StopChase()
+    void StopChase()
     {
         isChasing = false;
         timer.Paused = false;
@@ -147,7 +142,7 @@ public class Bee : Area2D
 
 	public override void _PhysicsProcess(float delta)
 	{
-        if (playerRay.IsColliding() && !isDead)
+        if (playerRay.IsColliding() && !isDead) // If spotted player and is not chasing already then chase them
         {
             var collider = playerRay.GetCollider();
             if (((Node)collider).Name == "Player")
@@ -160,43 +155,37 @@ public class Bee : Area2D
             }
         }
         else
-        {
             animSprite.Animation = "fly";
-        }
 
         if (!isChasing && !isDead)
         {
+            // Move the bee if its not chasing
             velocity.x = speed * direction;
+
             if (!timer.IsStopped())
-            {
                 velocity.y = ySpeed;
-            }
 
 		    GlobalPosition += velocity * delta;
         }
 	}
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
         if (!isDead)
         {
             timer.Start();
             if (Global.isAnimOn)
-            {
                 animSprite.Play();
-            }
         }
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
         if (!isDead)
         {
             timer.Stop();
             if (Global.isAnimOn)
-            {
                 animSprite.Stop();
-            }
         }
     }
 

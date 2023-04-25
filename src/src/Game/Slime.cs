@@ -7,19 +7,19 @@ public class Slime : Area2D
 	[Signal]
 	public delegate void Hit(Slime area);
 
-	private Tween tween;
-	private AnimatedSprite animSprite;
-	private CollisionShape2D collisionShape;
-	private RayCast2D ray1;
-	private RayCast2D ray2;
+	Tween tween;
+	AnimatedSprite animSprite;
+	CollisionShape2D collisionShape;
+	RayCast2D ray1;
+	RayCast2D ray2;
 
-	private int direction = -1;
+	int direction = -1;
 
-	private int speed = 45;
+	int speed = 45;
 
-	private Vector2 velocity = Vector2.Zero;
+	Vector2 velocity = Vector2.Zero;
 
-	private VisibilityNotifier2D vis;
+	VisibilityNotifier2D vis;
 
 	public override void _Ready()
 	{
@@ -34,20 +34,16 @@ public class Slime : Area2D
         tween = GetNode<Tween>("Tween");
 
 		if (vis.IsOnScreen() && Global.isAnimOn)
-		{
 			animSprite.Play();
-		}
 	}
 
-	private void Collision(Node body)
+	void Collision(Node body)
 	{
 		if (body.Name == "Player")
-		{
-            EmitSignal("Hit",this);
-		}
+            EmitSignal("Hit",this); // Emit the hit signal if touched player (from the sides)
 		else
 		{
-			if (direction == 1)
+			if (direction == 1) // If touched a wall then change direction
 			{
 				direction = -1;
                 animSprite.FlipH = false;
@@ -73,12 +69,13 @@ public class Slime : Area2D
         GetTree().CreateTimer(2.25f).Connect("timeout",this,"Remove");
     }
 
-    private void Remove()
+    void Remove()
     {
         QueueFree();
     }
 	public override void _PhysicsProcess(float delta)
 	{
+		// Change direction if the rays can't find ground anymore
 		if (!ray1.IsColliding())
 		{
 			direction = 1;
@@ -91,24 +88,21 @@ public class Slime : Area2D
             animSprite.FlipH = false;
 		}
 
+		// Move the slime
 		velocity.x = speed * direction;
 
 		GlobalPosition += velocity * delta;
 	}
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
         if (Global.isAnimOn)
-        {
             animSprite.Play();
-        }
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
         if (Global.isAnimOn)
-        {
             animSprite.Stop();
-        }
     }
 }

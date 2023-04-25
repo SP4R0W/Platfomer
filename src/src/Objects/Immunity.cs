@@ -4,23 +4,23 @@ using System;
 public class Immunity : Area2D
 {
 
-    private Timer moveTimer;
-	private CollisionShape2D collisionShape;
+    Timer moveTimer;
+	CollisionShape2D collisionShape;
 
-    private int ySpeed = 50;
+    int ySpeed = 50;
 
-    private VisibilityNotifier2D vis;
+    VisibilityNotifier2D vis;
 
-    private Vector2 velocity = Vector2.Zero;
+    Vector2 velocity = Vector2.Zero;
 
-    private Tween posTween;
-    private Tween visTween;
+    Tween posTween;
+    Tween visTween;
 
     public override void _Ready()
     {
         posTween = GetNode<Tween>("PosTween");
         visTween = GetNode<Tween>("VisTween");
-    
+
         collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
 
         moveTimer = GetNode<Timer>("MoveTimer");
@@ -28,22 +28,17 @@ public class Immunity : Area2D
 
 
         if (vis.IsOnScreen())
-        {
-            moveTimer.Start();
-        }
+            moveTimer.Start(); // Move timer is responsible for changing direction of y movement
         else
-        {
             moveTimer.Stop();
-        }
     }
 
-    private void Touched(Node body)
+    void Touched(Node body)
     {
         if (body.Name == "Player")
         {
-            
             var immunityTimer = GetTree().Root.GetNode<Timer>("Area/ImmunityDuration");
-            immunityTimer.Start();
+            immunityTimer.Start(); // Start the immunity
 
             moveTimer.Stop();
 
@@ -51,34 +46,32 @@ public class Immunity : Area2D
 
             var sound = GetNode<AudioStreamPlayer>("ImmuneSound");
             if (Global.isSfxOn)
-            {
-                sound.Play();
-            }
+                sound.Play(); // Play the sound
 
             Global.isImmune = true;
 
             posTween.InterpolateProperty(this,"position:y",Position.y,Position.y-100,1);
-            visTween.InterpolateProperty(this,"modulate:a",1.0,0,1);
+            visTween.InterpolateProperty(this,"modulate:a",1.0,0,1); // Move up and hide
 
             posTween.Start();
             visTween.Start();
 
-            GetTree().CreateTimer(1.25f).Connect("timeout",this,"Kill");
+            GetTree().CreateTimer(1.25f).Connect("timeout",this,"Kill"); // Remove the object
         }
     }
 
-    private void Kill()
+    void Kill()
     {
         QueueFree();
     }
 
-    private void ChangeY()
+    void ChangeY()
     {
         ySpeed *= -1;
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(float delta)
+    public override void _PhysicsProcess(float delta)
     {
         if (vis.IsOnScreen() && Global.isAnimOn)
         {
@@ -88,13 +81,15 @@ public class Immunity : Area2D
         }
     }
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
+        SetProcess(true); // Enable when entering the screen
         moveTimer.Start();
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
+        SetProcess(false); // Disable when leaving the screen
         moveTimer.Stop();
     }
 }

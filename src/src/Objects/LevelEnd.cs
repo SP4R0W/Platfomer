@@ -5,7 +5,7 @@ public class LevelEnd : Area2D
 {
     [Signal]
     public delegate void EndGameBG();
-    
+
     private CollisionShape2D collisionShape;
 
     private Tween posTween;
@@ -24,25 +24,21 @@ public class LevelEnd : Area2D
         if (body.Name == "Player")
         {
             collisionShape.SetDeferred("disabled",true);
-            Global.isEndGame = true;
+            Global.isEndGame = true; // Level is over
 
             var sound = GetNode<AudioStreamPlayer>("WinSound");
             if (Global.isSfxOn)
-            {
-                sound.Play();
-            }
+                sound.Play(); // Play the sound
 
             posTween.InterpolateProperty(this,"position:y",Position.y,Position.y-200,.5f);
-            visTween.InterpolateProperty(this,"modulate:a",1.0,0,.5f);
+            visTween.InterpolateProperty(this,"modulate:a",1.0,0,.5f); // Move the sign up and hide
 
             posTween.Start();
             visTween.Start();
 
-            EmitSignal("EndGameBG");
+            EmitSignal("EndGameBG"); // Signal that level is over
             if (Global.isSfxOn)
-            {
                 GetTree().CreateTimer(3f).Connect("timeout",this,"Kill");
-            }
         }
     }
 

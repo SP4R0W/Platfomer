@@ -7,17 +7,17 @@ public class Piranha : Area2D
 	public delegate void Hit(Piranha area, AnimatedSprite animSprite);
 
     [Export]
-    private int jumpValue = 512;
+    int jumpValue = 512;
 
-	private Timer timer;
-	private Tween tween;
-	private AnimatedSprite animSprite;
-	private CollisionShape2D collisionShape;
-	private VisibilityNotifier2D vis;
+	Timer timer;
+	Tween tween;
+	AnimatedSprite animSprite;
+	CollisionShape2D collisionShape;
+	VisibilityNotifier2D vis;
 
-	private Vector2 initialPos;
+	Vector2 initialPos;
 
-	private bool isDead = false;
+	bool isDead = false;
 
 	public override void _Ready()
 	{
@@ -27,48 +27,48 @@ public class Piranha : Area2D
 		animSprite = GetNode<AnimatedSprite>("AnimatedSprite");
 		collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
 
-		initialPos = GlobalPosition;
+		initialPos = GlobalPosition; // Move to the starting position
 
 		if (vis.IsOnScreen())
-		{
 			timer.Start();
-		}
 	}
 
-	private void JumpOut()
+	void JumpOut()
 	{
+		// If still alive then jump out of the water
 		if (!isDead)
 		{
 			animSprite.Animation = "jump";
 			tween.InterpolateProperty(this,"global_position:y",initialPos.y,initialPos.y - jumpValue,.8f,Tween.TransitionType.Linear,Tween.EaseType.InOut);
 			tween.Start();
 
-			GetTree().CreateTimer(1f).Connect("timeout",this,"JumpBack");
+			GetTree().CreateTimer(1f).Connect("timeout",this,"JumpBack"); // Wait a sec then jump back
 		}
 	}
 
-	private void JumpBack()
+	void JumpBack()
 	{
+		// If still alive then jump back into the water
 		if (!isDead)
 		{
 			animSprite.Animation = "fall";
 			tween.InterpolateProperty(this,"global_position:y",(initialPos.y - jumpValue),(initialPos.y - jumpValue) + jumpValue,.8f,Tween.TransitionType.Linear,Tween.EaseType.InOut);
 			tween.Start();
 
-			GetTree().CreateTimer(1f).Connect("timeout",this,"StartTimer");
+			GetTree().CreateTimer(1f).Connect("timeout",this,"StartTimer"); // Wait a sec then start the whole process again
 		}
 	}
 
-	private void StartTimer()
+	void StartTimer()
 	{
+		// Wait before starting another jump
 		if (!isDead)
-		{
 			timer.Start();
-		}
 	}
 
 	public void Kill()
 	{
+		// Kill the fish if player jumped on its head
 		isDead = true;
 
 		tween.RemoveAll();
@@ -77,34 +77,30 @@ public class Piranha : Area2D
 		animSprite.Animation = "dead";
 
 		tween.InterpolateProperty(this,"global_position:y",GlobalPosition.y,GlobalPosition.y+1000,2,Tween.TransitionType.Linear,Tween.EaseType.In);
-		tween.Start();
+		tween.Start(); // Move down then remove
 
         GetTree().CreateTimer(2.25f).Connect("timeout",this,"Remove");
     }
 
-    private void Remove()
+    void Remove()
     {
         QueueFree();
     }
 
-	private void PlayerEntered(Node body)
+	void PlayerEntered(Node body)
 	{
-		EmitSignal("Hit",this,animSprite);
-	} 
+		EmitSignal("Hit",this,animSprite); // Emit the hit signal if touched player (from the sides)
+	}
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
 		if (!isDead)
-		{
 			timer.Start();
-		}
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
 		if (!isDead)
-		{
 			timer.Stop();
-		}
     }
 }

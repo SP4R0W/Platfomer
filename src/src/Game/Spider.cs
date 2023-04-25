@@ -6,23 +6,23 @@ public class Spider : Area2D
 	[Signal]
 	public delegate void Hit(Spider area);
 
-	private Tween tween;
-	private AnimatedSprite animSprite;
-	private CollisionShape2D collisionShape;
-	private RayCast2D ray1;
-	private RayCast2D ray2;
-    private RayCast2D playerRay;
+	Tween tween;
+	AnimatedSprite animSprite;
+	CollisionShape2D collisionShape;
+	RayCast2D ray1;
+	RayCast2D ray2;
+    RayCast2D playerRay;
 
-	private VisibilityNotifier2D vis;
+	VisibilityNotifier2D vis;
 
-	private int direction = -1;
+	int direction = -1;
 
-	private int speed;
+	int speed;
 
-    private int normalSpeed = 75;
-    private int chaseSpeed = 300;
+    int normalSpeed = 75;
+    int chaseSpeed = 300;
 
-	private Vector2 velocity = Vector2.Zero;
+	Vector2 velocity = Vector2.Zero;
 
     public override void _Ready()
     {
@@ -34,26 +34,22 @@ public class Spider : Area2D
 
         animSprite = GetNode<AnimatedSprite>("AnimatedSprite");
         collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
-        tween = GetNode<Tween>("Tween");   
+        tween = GetNode<Tween>("Tween");
 
         speed = normalSpeed;
 
         animSprite.Animation = "walk";
 		if (vis.IsOnScreen() && Global.isAnimOn)
-		{
 			animSprite.Play();
-		}
     }
 
-	private void Collision(Node body)
+	void Collision(Node body)
 	{
 		if (body.Name == "Player")
-		{
-            EmitSignal("Hit",this);
-		}
+            EmitSignal("Hit",this); // Emit the hit signal if touched player (from the sides)
 		else
 		{
-			if (direction == 1)
+			if (direction == 1) // If touched a wall then change direction
 			{
 				direction = -1;
                 playerRay.Rotation = Mathf.Deg2Rad(0);
@@ -70,6 +66,7 @@ public class Spider : Area2D
 
     public void Kill()
     {
+        // Kill the spider if player jumped on its head
         collisionShape.SetDeferred("disabled",true);
         playerRay.Enabled = false;
         speed = 0;
@@ -81,7 +78,7 @@ public class Spider : Area2D
         GetTree().CreateTimer(2.25f).Connect("timeout",this,"Remove");
     }
 
-    private void Remove()
+    void Remove()
     {
         QueueFree();
     }
@@ -105,38 +102,29 @@ public class Spider : Area2D
         if (playerRay.IsColliding())
         {
             var collider = playerRay.GetCollider();
-            if (((Node)collider).Name == "Player")
-            {
+            if (((Node)collider).Name == "Player") // If spotted a player then speed up
                 speed = chaseSpeed;
-            }
             else
-            {
                 speed = normalSpeed;
-            }
         }
         else
-        {
             speed = normalSpeed;
-        }
 
+        // Move the spider
 		velocity.x = speed * direction;
 
 		GlobalPosition += velocity * delta;
 	}
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
         if (Global.isAnimOn)
-        {
             animSprite.Play();
-        }
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
         if (Global.isAnimOn)
-        {
             animSprite.Stop();
-        }
     }
 }

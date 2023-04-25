@@ -7,11 +7,11 @@ public class Composer : Node
 
     public Node CurrentScene { get; set; }
 
-    private bool isEnteringNewScene = false;
+    bool isEnteringNewScene = false;
 
     public Dictionary<string,int> screen = new Godot.Collections.Dictionary<string,int>();
 
-    private PackedScene zigzag = (PackedScene)ResourceLoader.Load("res://src/Globals/ZigZag.tscn");
+    PackedScene zigzag = (PackedScene)ResourceLoader.Load("res://src/Globals/ZigZag.tscn");
 
     public override void _Ready()
     {
@@ -24,16 +24,14 @@ public class Composer : Node
         if (!isEnteringNewScene)
         {
             if (Global.isSfxOn && !beQuiet)
-            {
-                Global.longClick.Play();
-            }
+                Global.longClick.Play(); // Play the sound
 
             isEnteringNewScene = true;
             CallDeferred(nameof(DefferedGotoScene),newScene,animate,animation);
         }
     }
 
-    private async void DefferedGotoScene(string newScene,bool animate = true,string animation="zigzag")
+    async void DefferedGotoScene(string newScene,bool animate = true,string animation="zigzag")
     {
         var root = GetTree().Root.GetNode<Node>("Area");
 
@@ -48,19 +46,21 @@ public class Composer : Node
 
                 canvas.AddChild(overlay);
                 overlay.GlobalPosition = new Vector2(0,0);
-                
-                canvas.AddChild(tween);
+
+                canvas.AddChild(tween); // Start zigzag animation
                 tween.InterpolateProperty(overlay,"global_position",new Vector2(-(1 * screen["width"]),0),new Vector2(0,0),.75f,Tween.TransitionType.Linear,Tween.EaseType.InOut);
                 tween.Start();
 
                 await ToSignal(tween,"tween_completed");
+
                 var scene = root.GetNode<Node>(CurrentScene.Name);
-                scene.QueueFree();
+                scene.QueueFree(); // Remove the old scene
 
                 var nextScene = (PackedScene)ResourceLoader.Load(newScene);
                 Node nextLevel = (Node)nextScene.Instance();
-                root.AddChild(nextLevel);
+                root.AddChild(nextLevel); // Load the new scene and add it to root
 
+                // Start the second zigzag animation
                 tween.InterpolateProperty(overlay,"global_position",new Vector2(0,0),new Vector2(1 * (screen["width"] * 2),0),1.5f,Tween.TransitionType.Linear,Tween.EaseType.InOut);
                 tween.Start();
 
@@ -71,12 +71,9 @@ public class Composer : Node
                 overlay.QueueFree();
                 tween.QueueFree();
 
-                CurrentScene = root.GetChild(root.GetChildCount() - 1);
+                CurrentScene = root.GetChild(root.GetChildCount() - 1); // set current scene
 
-                if (Global.isChangingLevel)
-                {
-                    Global.isChangingLevel = false;
-                }
+                Global.isChangingLevel = false;
             }
             else if (animation == "fade")
             {
@@ -87,19 +84,19 @@ public class Composer : Node
                 transitionRect.Visible = true;
                 canvas.AddChild(tween);
 
-                tween.InterpolateProperty(transitionRect,"modulate:a",0, 1,.5f,Tween.TransitionType.Sine,Tween.EaseType.InOut);
+                tween.InterpolateProperty(transitionRect,"modulate:a",0, 1,.5f,Tween.TransitionType.Sine,Tween.EaseType.InOut); // Start fading in
                 tween.Start();
 
                 await ToSignal(tween,"tween_completed");
 
                 var scene = root.GetNode<Node>(CurrentScene.Name);
-                scene.QueueFree();
+                scene.QueueFree(); // Remove the old scene
 
                 var nextScene = (PackedScene)ResourceLoader.Load(newScene);
                 Node nextLevel = (Node)nextScene.Instance();
-                root.AddChild(nextLevel);
+                root.AddChild(nextLevel); // Load the new scene and add it to root
 
-                tween.InterpolateProperty(transitionRect,"modulate:a",1, 0,.5f,Tween.TransitionType.Sine,Tween.EaseType.InOut);
+                tween.InterpolateProperty(transitionRect,"modulate:a",1, 0,.5f,Tween.TransitionType.Sine,Tween.EaseType.InOut); // Start fading out
                 tween.Start();
 
                 await ToSignal(tween,"tween_completed");
@@ -109,27 +106,23 @@ public class Composer : Node
                 tween.QueueFree();
                 transitionRect.Visible = false;
 
-                CurrentScene = root.GetChild(root.GetChildCount() - 1);
+                CurrentScene = root.GetChild(root.GetChildCount() - 1); // set current scene
 
-                if (Global.isChangingLevel)
-                {
-                    Global.isChangingLevel = false;
-                }
+                Global.isChangingLevel = false;
             }
         }
         else
         {
+            // No animation, simply remove the old scene and load in the new one.
+
             var nextLevel = (PackedScene)ResourceLoader.Load(newScene);
             root.AddChild(nextLevel.Instance());
 
-            CurrentScene = root.GetChild(root.GetChildCount() - 1);      
+            CurrentScene = root.GetChild(root.GetChildCount() - 1);
 
-            isEnteringNewScene = false;    
+            isEnteringNewScene = false;
 
-            if (Global.isChangingLevel)
-            {
-                Global.isChangingLevel = false;
-            }
+            Global.isChangingLevel = false; // set current scene
         }
     }
 }

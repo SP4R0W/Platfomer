@@ -5,22 +5,22 @@ using Godot.Collections;
 public class Options : Node
 {
 
-    private Label musicLabel;
-    private Label sfxLabel;
-    private Label ostLabel;
-    private Label animLabel;
-    private Label speedLabel;
-    private TextureButton musicTextureButton;
-    private TextureButton sfxTextureButton;
-    private TextureButton ostTextureButton;
-    private TextureButton animTextureButton;
-    private TextureButton speedTextureButton;
+    Label musicLabel;
+    Label sfxLabel;
+    Label ostLabel;
+    Label animLabel;
+    Label speedLabel;
+    TextureButton musicTextureButton;
+    TextureButton sfxTextureButton;
+    TextureButton ostTextureButton;
+    TextureButton animTextureButton;
+    TextureButton speedTextureButton;
 
-    private Tween tween;
+    Tween tween;
 
-    private bool isAnimationFinished = false;
+    bool isAnimationFinished = false;
 
-    private Dictionary<bool,string> textValues = new Dictionary<bool,string>()
+    Dictionary<bool,string> textValues = new Dictionary<bool,string>()
     {
         {true,"ON"},
         {false,"OFF"}
@@ -41,6 +41,8 @@ public class Options : Node
         ostTextureButton = GetNode<TextureButton>("CanvasLayer/VBoxContainer/Calm/CalmButton");
         animTextureButton = GetNode<TextureButton>("CanvasLayer/VBoxContainer/Anims/AnimButton");
         speedTextureButton = GetNode<TextureButton>("CanvasLayer/VBoxContainer/Speed/SpeedButton");
+
+        // Options screen animations
 
         var title = GetNode<Label>("CanvasLayer/Label");
         title.RectGlobalPosition = new Vector2(title.RectGlobalPosition.x,-500);
@@ -97,7 +99,7 @@ public class Options : Node
     {
         if (@event is InputEventMouseButton mouseButton && mouseButton.Pressed && !isAnimationFinished)
         {
-            if (mouseButton.ButtonIndex == 1)
+            if (mouseButton.ButtonIndex == 1) // Skip the animations on mouse click
             {
                 tween.RemoveAll();
 
@@ -121,40 +123,32 @@ public class Options : Node
                 speedTextureButton.Modulate = new Color(1,1,1,1);
 
                 await ToSignal(GetTree().CreateTimer(0.2f),"timeout");
-                
+
                 isAnimationFinished = true;
             }
         }
     }
 
-    private void ChangeMusic()
+    void ChangeMusic()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
 
         if (Global.isSfxOn && !Global.shortClick.Playing)
-        {
             Global.shortClick.Play();
-        }
 
-        Global.isMusicOn = !Global.isMusicOn;
+        Global.isMusicOn = !Global.isMusicOn; // disable or enable music
 
         var music = GetTree().Root.GetNode<AudioStreamPlayer>("Area/MenuTheme");
-        if (Global.isMusicOn)
-        {
+        if (Global.isMusicOn) // Play the music if enabled, disable if disabled
             music.Play();
-        }
         else
-        {
             music.Stop();
-        }
 
         musicLabel.Text = "MUSIC: " + textValues[Global.isMusicOn];
     }
 
-    private void ChangeSfx()
+    void ChangeSfx()
     {
         if (!isAnimationFinished)
         {
@@ -162,72 +156,56 @@ public class Options : Node
         }
 
         if (Global.isSfxOn)
-        {
             Global.shortClick.Play();
-        }
 
-        Global.isSfxOn = !Global.isSfxOn;
+        Global.isSfxOn = !Global.isSfxOn; // Disable or enable sound effects
 
         sfxLabel.Text = "SFX: " + textValues[Global.isSfxOn];
     }
 
-    private void ChangeOST()
+    void ChangeOST()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
 
         if (Global.isSfxOn)
-        {
             Global.shortClick.Play();
-        }
 
         Global.isMusicCalm = !Global.isMusicCalm;
 
         ostLabel.Text = "Alt OST: " + textValues[!Global.isMusicCalm];
     }
 
-    private void ChangeAnim()
+    void ChangeAnim()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
 
         if (Global.isSfxOn)
-        {
             Global.shortClick.Play();
-        }
 
-        Global.isAnimOn = !Global.isAnimOn;
+        Global.isAnimOn = !Global.isAnimOn; // Disable or enable certain enemy animations
 
         animLabel.Text = "ANIMATIONS: " + textValues[Global.isAnimOn];
     }
 
-    private void SwitchSpeedrun()
+    void SwitchSpeedrun()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
 
         if (Global.isSfxOn)
-        {
             Global.shortClick.Play();
-        }
 
-        Global.isSpeedrunOn = !Global.isSpeedrunOn;
+        Global.isSpeedrunOn = !Global.isSpeedrunOn; // Disable or enable speedruning mode (more precise time tracking)
 
         speedLabel.Text = "Speedrun: " + textValues[Global.isSpeedrunOn];
     }
 
-    private void GotoMenu()
+    void GotoMenu()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
 
         Global.composer.GotoScene(Global.scenes["mainmenu"]);
     }
@@ -235,6 +213,6 @@ public class Options : Node
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.
 //  public override void _Process(float delta)
 //  {
-//      
+//
 //  }
 }

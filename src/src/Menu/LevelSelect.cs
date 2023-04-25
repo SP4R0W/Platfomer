@@ -4,15 +4,15 @@ using System;
 public class LevelSelect : Node
 {
 
-    private int level = 1;
+    int level = 1;
 
-    private Label levelLabel;
-    private AnimatedSprite levelPreview;
+    Label levelLabel;
+    AnimatedSprite levelPreview;
 
-    private Tween tween;
+    Tween tween;
 
-    private bool isAnimationFinished = false;
-    private bool isChangingLevel = false;
+    bool isAnimationFinished = false;
+    bool isChangingLevel = false;
 
     public override async void _Ready()
     {
@@ -20,6 +20,8 @@ public class LevelSelect : Node
 
         levelLabel = GetNode<Label>("CanvasLayer/LevelText");
         levelPreview = GetNode<AnimatedSprite>("CanvasLayer/LevelPreview");
+
+        // Level select screen animations
 
         var title = GetNode<Label>("CanvasLayer/Label");
         title.RectGlobalPosition = new Vector2(title.RectGlobalPosition.x,-500);
@@ -30,7 +32,7 @@ public class LevelSelect : Node
 
         levelPreview.Modulate = new Color(1,1,1,0);
         tween.InterpolateProperty(levelPreview,"modulate:a",0,1,1,Tween.TransitionType.Linear,Tween.EaseType.InOut,1.5f);
-        
+
         var button1 = GetNode<TextureButton>("CanvasLayer/PlayButton");
         button1.Modulate = new Color(1,1,1,0);
         tween.InterpolateProperty(button1,"modulate:a",0,1,1,Tween.TransitionType.Linear,Tween.EaseType.InOut,2f);
@@ -58,7 +60,7 @@ public class LevelSelect : Node
     {
         if (@event is InputEventMouseButton mouseButton && mouseButton.Pressed && !isAnimationFinished)
         {
-            if (mouseButton.ButtonIndex == 1)
+            if (mouseButton.ButtonIndex == 1) // Skip the animations on mouse click
             {
                 tween.RemoveAll();
 
@@ -82,18 +84,18 @@ public class LevelSelect : Node
                 button4.Modulate = new Color(1,1,1,1);
 
                 await ToSignal(GetTree().CreateTimer(0.2f),"timeout");
-                
+
                 isAnimationFinished = true;
             }
         }
     }
 
-    private void GotoGame()
+    void GotoGame()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
+
+        // Reset all values on start of the game
 
 		Global.totalSpeedTime = 0;
 		Global.level1SpeedTime = 0;
@@ -117,35 +119,29 @@ public class LevelSelect : Node
         Global.composer.GotoScene(Global.scenes["game"],true,"fade");
     }
 
-    private void GotoMenu()
+    void GotoMenu()
     {
         if (!isAnimationFinished)
-        {
             return;
-        }
 
         Global.composer.GotoScene(Global.scenes["mainmenu"]);
     }
 
-    private async void NextLevel()
+    async void NextLevel()
     {
         if (!isAnimationFinished || isChangingLevel)
-        {
             return;
-        }
 
         isChangingLevel = true;
 
         level++;
         if (level > 5)
-        {
             level = 1;
-        }
 
         if (Global.isSfxOn)
-        {
             Global.shortClick.Play();
-        }
+
+        // Animations for changing the level thumbnail image and text (these can't be skipped)
 
         tween.InterpolateProperty(levelLabel,"modulate:a",1,0,.5f);
         tween.InterpolateProperty(levelPreview,"modulate:a",1,0,.5f);
@@ -167,25 +163,21 @@ public class LevelSelect : Node
         isChangingLevel = false;
     }
 
-    private async void PrevLevel()
+    async void PrevLevel()
     {
         if (!isAnimationFinished || isChangingLevel)
-        {
             return;
-        }
 
         isChangingLevel = true;
 
         level--;
         if (level < 1)
-        {
             level = 5;
-        }
 
         if (Global.isSfxOn)
-        {
             Global.shortClick.Play();
-        }
+
+        // Animations for changing the level thumbnail image and text (these can't be skipped)
 
         tween.InterpolateProperty(levelLabel,"modulate:a",1,0,.5f);
         tween.InterpolateProperty(levelPreview,"modulate:a",1,0,.5f);
@@ -199,7 +191,7 @@ public class LevelSelect : Node
 
         tween.InterpolateProperty(levelLabel,"modulate:a",0,1,.5f);
         tween.InterpolateProperty(levelPreview,"modulate:a",0,1,.5f);
-        
+
         tween.Start();
 
         await ToSignal(tween,"tween_all_completed");
@@ -210,6 +202,6 @@ public class LevelSelect : Node
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.
 //  public override void _Process(float delta)
 //  {
-//      
+//
 //  }
 }

@@ -7,20 +7,20 @@ public class Barnacle : Area2D
 	[Signal]
 	public delegate void Hit(Barnacle area, AnimatedSprite animSprite);
 
-	private Timer showTimer;
-	private Timer hideTimer;
-	private Tween tween;
-	private AnimatedSprite animSprite;
-	private CollisionShape2D collisionShape;
+	Timer showTimer;
+	Timer hideTimer;
+	Tween tween;
+	AnimatedSprite animSprite;
+	CollisionShape2D collisionShape;
 
-	private VisibilityNotifier2D vis;
+	VisibilityNotifier2D vis;
 
 	public override void _Ready()
 	{
 		vis = GetNode<VisibilityNotifier2D>("VisibilityNotifier2D");
 
 		Position = new Vector2(Position.x,Position.y + 63);
-		
+
 		showTimer = GetNode<Timer>("ShowTimer");
 		hideTimer = GetNode<Timer>("HideTimer");
 		tween = GetNode<Tween>("Tween");
@@ -30,17 +30,15 @@ public class Barnacle : Area2D
 		if (vis.IsOnScreen())
 		{
 			if (Global.isAnimOn)
-			{
 				animSprite.Play();
-			}
 		}
 
 		showTimer.Start();
 	}
 
-	private void ShowEnemy()
+	void ShowEnemy()
 	{
-
+		// Move the barnacle from the ground
 		animSprite.Animation = "closed";
 
 		tween.InterpolateProperty(this,"position:y",Position.y,Position.y - 63,2f);
@@ -50,24 +48,27 @@ public class Barnacle : Area2D
 
 	}
 
-	private void EndShow()
+	void EndShow()
 	{
+		// Open the barnacle's teeth
 		animSprite.Animation = "open";
 		hideTimer.Start();
 	}
 
-	private void HideEnemy()
+	void HideEnemy()
 	{
-			animSprite.Animation = "closed";
+		// Hide the barnacle
+		animSprite.Animation = "closed";
 
-			tween.InterpolateProperty(this,"position:y",Position.y,Position.y + 63,2f);
-			tween.Start();
+		tween.InterpolateProperty(this,"position:y",Position.y,Position.y + 63,2f);
+		tween.Start();
 
-			GetTree().CreateTimer(2f).Connect("timeout",this,"EndHide");
+		GetTree().CreateTimer(2f).Connect("timeout",this,"EndHide");
 	}
 
-	private void EndHide()
+	void EndHide()
 	{
+		// Close barnacle's teeth
 		animSprite.Animation = "closed";
 		showTimer.Start();
 	}
@@ -76,11 +77,11 @@ public class Barnacle : Area2D
 	{
 		hideTimer.Paused = true;
 		animSprite.Animation = "closed";
-		
+
 		GetTree().CreateTimer(0.2f).Connect("timeout",this,"EndAttack");
 	}
 
-	private void EndAttack()
+	void EndAttack()
 	{
 		animSprite.Animation = "open";
 		hideTimer.Paused = false;
@@ -96,22 +97,22 @@ public class Barnacle : Area2D
 		Rotation = Mathf.Deg2Rad(180);
 
 		tween.InterpolateProperty(this,"position:y",Position.y,Position.y+1000,2,Tween.TransitionType.Linear,Tween.EaseType.In);
-		tween.Start();
+		tween.Start(); // Move the barnacle down and remove
 
         GetTree().CreateTimer(2.25f).Connect("timeout",this,"Remove");
     }
 
-    private void Remove()
+    void Remove()
     {
         QueueFree();
     }
 
-	private void PlayerEntered(Node body)
+	void PlayerEntered(Node body)
 	{
-		EmitSignal("Hit",this,animSprite);
-	} 
+		EmitSignal("Hit",this,animSprite); // Emit the hit signal if touched player (from the sides or when teeth are open)
+	}
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
         if (Global.isAnimOn)
         {
@@ -119,7 +120,7 @@ public class Barnacle : Area2D
         }
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
         if (Global.isAnimOn)
         {

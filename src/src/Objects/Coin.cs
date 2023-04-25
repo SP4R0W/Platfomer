@@ -4,17 +4,17 @@ using System;
 public class Coin : Area2D
 {
 
-    private int ySpeed = 10;
-    
-    private Timer moveTimer;
-    private VisibilityNotifier2D vis;
+    int ySpeed = 10;
 
-    private CollisionShape2D collisionShape;
+    Timer moveTimer;
+    VisibilityNotifier2D vis;
 
-    private Tween posTween;
-    private Tween visTween;
+    CollisionShape2D collisionShape;
 
-    private Vector2 velocity = Vector2.Zero;
+    Tween posTween;
+    Tween visTween;
+
+    Vector2 velocity = Vector2.Zero;
 
     public override void _Ready()
     {
@@ -27,74 +27,71 @@ public class Coin : Area2D
         collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
 
         if (vis.IsOnScreen())
-        {
-            moveTimer.Start();
-        }
+            moveTimer.Start(); // Move timer is responsible for changing direction of y movement
         else
-        {
             moveTimer.Stop();
-        }
     }
 
-    private void ChangeY()
+    void ChangeY()
     {
         ySpeed *= -1;
     }
 
-    public override void _Process(float delta)
+    public override void _PhysicsProcess(float delta)
     {
         if (vis.IsOnScreen() && Global.isAnimOn)
         {
             velocity.y = ySpeed;
 
-            GlobalPosition += velocity * delta;   
+            GlobalPosition += velocity * delta;
         }
     }
 
-    private void Touched(Node body)
+    void Touched(Node body)
     {
         if (body.Name == "Player")
         {
             collisionShape.SetDeferred("disabled",true);
+
             var sound = GetNode<AudioStreamPlayer>("CoinSound");
             if (Global.isSfxOn)
-            {
-                sound.Play();
-            }
+                sound.Play(); // Play the sound
+
             Global.coins++;
-            if (Global.coins % 10 == 0)
-            {
+
+            if (Global.coins % 10 == 0) // Award the player an extra health when collecting 10 coins
                 Global.plrHealth++;
-            }
 
             posTween.InterpolateProperty(this,"position:y",Position.y,Position.y-100,.5f);
-            visTween.InterpolateProperty(this,"modulate:a",1.0,0,.5f);
+            visTween.InterpolateProperty(this,"modulate:a",1.0,0,.5f); // Move up and hide
 
             posTween.Start();
             visTween.Start();
 
-            GetTree().CreateTimer(.75f).Connect("timeout",this,"Kill");
+            GetTree().CreateTimer(.75f).Connect("timeout",this,"Kill"); // Destroy the object
         }
     }
 
-    private void Kill()
+    void Kill()
     {
         QueueFree();
     }
 
-    private void ScreenEntered()
+    void ScreenEntered()
     {
+        SetProcess(true); // Enable when entering the screen
         moveTimer.Start();
     }
 
-    private void ScreenLeft()
+    void ScreenLeft()
     {
+        SetProcess(false); // Disable when leaving the screen
         moveTimer.Stop();
     }
 
 //  // Called every frame. 'delta' is the elapsed time since the previous frame.
 //  public override void _Process(float delta)
 //  {
-//      
+//
 //  }
 }

@@ -36,7 +36,7 @@ public class Global : Node
     public static int prevTotalTime = 0;
     public static int prevTotalScore = 0;
     public static int prevTotalKills = 0;
-    
+
     public static int totalTime = 0;
     public static int totalScore = 0;
     public static int totalDeaths = 0;
@@ -74,22 +74,22 @@ public class Global : Node
 
     public static void PlayMusic(Node area, int id)
     {
-        var musicName = "LevelTheme" + Convert.ToString(id);
+        var musicName = "LevelTheme" + Convert.ToString(id); // Get the correct track name
         if (isMusicCalm)
-            musicName += "Calm";
+            musicName += "Calm"; // Check if we're having an alt ost or not
 
         var track = area.GetNode<AudioStreamPlayer>(musicName);
         if (!track.Playing)
-            track.Play();
+            track.Play(); // Play the music
     }
 
     public static void StopMusic(Node area, int id)
     {
-        var musicName = "LevelTheme" + Convert.ToString(id);
+        var musicName = "LevelTheme" + Convert.ToString(id); // Get the correct track name
         if (isMusicCalm)
-            musicName += "Calm";
+            musicName += "Calm"; // Check if we're having an alt ost or not
 
         var track = area.GetNode<AudioStreamPlayer>(musicName);
-        track.Stop();
+        track.Stop(); // Stop the music
     }
 }

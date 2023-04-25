@@ -50,9 +50,6 @@ enabled = true
 cast_to = Vector2( 0, -600 )
 collision_mask = 7
 
-[node name="MoveTimer" type="Timer" parent="."]
-one_shot = true
-
 [node name="Tween" type="Tween" parent="."]
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
